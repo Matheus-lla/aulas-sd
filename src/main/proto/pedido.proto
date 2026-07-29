@@ -1,0 +1,31 @@
+// Usa a versão 3 da linguagem Protocol Buffers.
+syntax = "proto3";
+
+// Namespace do contrato Protobuf. Não precisa ser igual ao pacote Java.
+package pedido;
+
+// Gera uma classe Java separada para cada mensagem e serviço.
+option java_multiple_files = true;
+// Pacote das classes Java criadas a partir deste arquivo.
+option java_package = "aula.sd.ecommerce.grpc";
+
+// Define o contrato do serviço que servidor e clientes devem seguir.
+service PedidoService {
+  // RPC unário: recebe uma requisição e devolve uma única resposta.
+  rpc CriarPedido(CriarPedidoRequest)
+      returns (CriarPedidoResponse);
+}
+
+// Mensagem enviada pelo cliente ao chamar CriarPedido.
+message CriarPedidoRequest {
+  // Os números identificam os campos.
+  string item = 1;
+  int32 quantidade = 2;
+}
+
+// Mensagem devolvida pelo servidor após criar o pedido.
+message CriarPedidoResponse {
+  string pedido_id = 1;
+  string status = 2;
+  string mensagem = 3;
+}
