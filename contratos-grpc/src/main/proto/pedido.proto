@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package pedido;
+
+option java_multiple_files = true;
+option java_package = "aula.sd.ecommerce.grpc";
+
+service PedidoService {
+  rpc CriarPedido(CriarPedidoRequest) returns (CriarPedidoResponse);
+}
+
+message CriarPedidoRequest {
+  string item = 1;
+  int32 quantidade = 2;
+}
+
+message CriarPedidoResponse {
+  string pedido_id = 1;
+  string status = 2;
+  string mensagem = 3;
+}
