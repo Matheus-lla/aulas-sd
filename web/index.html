@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="description" content="Interface didática do mini e-commerce distribuído">
+    <title>SD Commerce</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%232563eb%22/><path d=%22M18 22h28l-3 24H21zM25 22a7 7 0 0114 0%22 fill=%22none%22 stroke=%22white%22 stroke-width=%224%22 stroke-linecap=%22round%22/></svg>">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+</head>
+<body>
+<div class="page-glow page-glow-one"></div>
+<div class="page-glow page-glow-two"></div>
+
+<main id="login-view" class="login-shell">
+    <section class="login-card" aria-labelledby="login-title">
+        <div class="brand-mark" aria-hidden="true">SD</div>
+        <p class="eyebrow">Laboratório de Sistemas Distribuídos</p>
+        <h1 id="login-title">Bem-vindo ao <span>SD Commerce</span></h1>
+        <p class="login-intro">
+            Uma interface simples para acompanhar o fluxo REST, gRPC e persistência do mini e-commerce.
+        </p>
+
+        <div class="flow-strip" aria-label="Fluxo da aplicação">
+            <span>REST</span><i>→</i><span>gRPC</span><i>→</i><span>Banco de dados</span>
+        </div>
+
+        <form id="login-form" class="login-form">
+            <label for="usuario">Usuário</label>
+            <input id="usuario" name="usuario" autocomplete="username" value="admin" required>
+
+            <label for="senha">Senha</label>
+            <input id="senha" name="senha" type="password" autocomplete="current-password" value="admin" required>
+
+            <p id="login-error" class="form-error" role="alert" hidden></p>
+            <button id="login-button" class="button button-primary button-full" type="submit">
+                Entrar no laboratório
+            </button>
+        </form>
+
+        <p class="credentials-note">
+            Credenciais didáticas: <code>admin</code> / <code>admin</code>
+        </p>
+    </section>
+</main>
+
+<div id="app-view" class="app-shell" hidden>
+    <header class="topbar">
+        <a class="brand" href="#produtos" aria-label="SD Commerce - início">
+            <span class="brand-mark brand-mark-small" aria-hidden="true">SD</span>
+            <span><strong>SD Commerce</strong><small>ambiente didático</small></span>
+        </a>
+
+        <nav class="main-nav" aria-label="Navegação principal">
+            <button class="nav-button active" type="button" data-view="produtos">Produtos</button>
+            <button class="nav-button" type="button" data-view="pedidos">
+                Pedidos <span id="orders-badge" class="badge">0</span>
+            </button>
+        </nav>
+
+        <div class="user-area">
+            <span class="connection-dot" title="Sessão autenticada"></span>
+            <span class="user-name">admin</span>
+            <button id="logout-button" class="button button-ghost button-small" type="button">Sair</button>
+        </div>
+    </header>
+
+    <main class="content">
+        <section class="hero">
+            <div>
+                <p class="eyebrow">E-commerce distribuído em execução</p>
+                <h1>Do clique à reserva de estoque.</h1>
+                <p>Escolha produtos, confirme um pedido e observe o estado mudar entre os serviços.</p>
+            </div>
+            <div class="architecture-flow" aria-label="Arquitetura resumida">
+                <span>Gateway</span><i>→</i><span>Pedidos</span><i>→</i><span>Estoque</span><i>→</i><span>Banco de dados</span>
+            </div>
+        </section>
+
+        <section class="metrics" aria-label="Resumo do ambiente">
+            <article class="metric-card">
+                <span class="metric-icon metric-blue" aria-hidden="true">▦</span>
+                <div><strong id="products-count">—</strong><span>produtos no catálogo</span></div>
+            </article>
+            <article class="metric-card">
+                <span class="metric-icon metric-green" aria-hidden="true">✓</span>
+                <div><strong id="stock-count">—</strong><span>unidades disponíveis</span></div>
+            </article>
+            <article class="metric-card">
+                <span class="metric-icon metric-violet" aria-hidden="true">◎</span>
+                <div><strong id="orders-count">—</strong><span>pedidos confirmados</span></div>
+            </article>
+        </section>
+
+        <section id="products-view" class="workspace">
+            <div class="catalog-panel">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Catálogo persistido</p>
+                        <h2>Produtos disponíveis</h2>
+                    </div>
+                    <button id="refresh-products" class="button button-secondary button-small" type="button">
+                        Atualizar estoque
+                    </button>
+                </div>
+                <div id="products-grid" class="products-grid" aria-live="polite">
+                    <div class="loading-card">Carregando catálogo…</div>
+                </div>
+            </div>
+
+            <aside class="order-panel" aria-labelledby="order-title">
+                <div class="order-panel-header">
+                    <div>
+                        <p class="eyebrow">Reserva síncrona</p>
+                        <h2 id="order-title">Seu pedido</h2>
+                    </div>
+                    <span id="selected-count" class="selection-count">0 itens</span>
+                </div>
+                <div id="order-summary" class="order-summary">
+                    <div class="empty-state compact">
+                        <span aria-hidden="true">＋</span>
+                        <p>Selecione a quantidade nos produtos ao lado.</p>
+                    </div>
+                </div>
+                <div class="order-total">
+                    <span>Total estimado</span>
+                    <strong id="estimated-total">R$ 0,00</strong>
+                </div>
+                <button id="submit-order" class="button button-primary button-full" type="button" disabled>
+                    Confirmar pedido
+                </button>
+                <p class="order-note">O backend recalcula preços, reserva todo o estoque e só então confirma.</p>
+            </aside>
+        </section>
+
+        <section id="orders-view" class="orders-panel" hidden>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Estado do pedido-service</p>
+                    <h2>Pedidos confirmados</h2>
+                </div>
+                <button id="refresh-orders" class="button button-secondary button-small" type="button">
+                    Atualizar pedidos
+                </button>
+            </div>
+            <div id="orders-list" class="orders-list" aria-live="polite"></div>
+        </section>
+    </main>
+</div>
+
+<dialog id="details-dialog" class="details-dialog">
+    <button class="dialog-close" type="button" aria-label="Fechar detalhes">×</button>
+    <div id="dialog-content"></div>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

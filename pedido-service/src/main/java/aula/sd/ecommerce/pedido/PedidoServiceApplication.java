@@ -15,6 +15,8 @@ public class PedidoServiceApplication {
 
     @Bean
     EstoqueServiceGrpc.EstoqueServiceBlockingStub estoqueService(GrpcChannelFactory channels) {
+        // O stub Java usa o mesmo .proto do servidor Python; só conhece mensagens e métodos.
+        // O canal usa o endereço de application.properties e envia Protobuf pela rede.
         return EstoqueServiceGrpc.newBlockingStub(channels.createChannel("estoque"));
     }
 }

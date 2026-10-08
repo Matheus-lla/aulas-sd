@@ -1,21 +1,54 @@
 syntax = "proto3";
 
-package pedido;
+package ecommerce;
 
 option java_multiple_files = true;
 option java_package = "aula.sd.ecommerce.grpc";
+option java_outer_classname = "PedidoProto";
 
 service PedidoService {
-  rpc CriarPedido(CriarPedidoRequest) returns (CriarPedidoResponse);
+  rpc CriarPedido(CriarPedidoRequest) returns (Pedido);
+  rpc ConsultarPedido(ConsultarPedidoRequest) returns (Pedido);
+  rpc ListarPedidos(ListarPedidosRequest) returns (ListarPedidosResponse);
 }
 
-message CriarPedidoRequest {
-  string item = 1;
+message ItemPedidoRequest {
+  string produto_id = 1;
   int32 quantidade = 2;
 }
 
-message CriarPedidoResponse {
+message CriarPedidoRequest {
+  string usuario = 1;
+  repeated ItemPedidoRequest itens = 2;
+}
+
+message ConsultarPedidoRequest {
   string pedido_id = 1;
-  string status = 2;
-  string mensagem = 3;
+  string usuario = 2;
+}
+
+message ListarPedidosRequest {
+  string usuario = 1;
+}
+
+message PedidoItem {
+  string produto_id = 1;
+  string nome = 2;
+  int32 quantidade = 3;
+  string preco_unitario = 4;
+  string subtotal = 5;
+}
+
+message Pedido {
+  string id = 1;
+  string usuario = 2;
+  string status = 3;
+  repeated PedidoItem itens = 4;
+  string valor_total = 5;
+  string moeda = 6;
+  string criado_em = 7;
+}
+
+message ListarPedidosResponse {
+  repeated Pedido pedidos = 1;
 }

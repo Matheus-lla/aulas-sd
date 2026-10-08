@@ -36,3 +36,17 @@ build/
 *.tmp
 *.swp
 *~
+
+# Bancos locais e logs de demonstração
+data/
+*.log
+
+.venv/
+# Ambiente e arquivos gerados Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+estoque-service/src/estoque/generated/*_pb2.py
+estoque-service/src/estoque/generated/*_pb2_grpc.py

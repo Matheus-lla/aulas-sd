@@ -18,7 +18,6 @@
 
     <modules>
         <module>contratos-grpc</module>
-        <module>estoque-service</module>
         <module>pedido-service</module>
         <module>api-gateway</module>
     </modules>

@@ -1,40 +1,43 @@
 package aula.sd.ecommerce.pedido;
 
-import aula.sd.ecommerce.grpc.ConsultarEstoqueRequest;
-import aula.sd.ecommerce.grpc.ConsultarEstoqueResponse;
-import aula.sd.ecommerce.grpc.CriarPedidoRequest;
-import aula.sd.ecommerce.grpc.CriarPedidoResponse;
-import aula.sd.ecommerce.grpc.EstoqueServiceGrpc;
-import aula.sd.ecommerce.grpc.PedidoServiceGrpc;
+import aula.sd.ecommerce.grpc.*;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.springframework.grpc.server.service.GrpcService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.function.Supplier;
 
 @GrpcService
 public class PedidoServiceImpl extends PedidoServiceGrpc.PedidoServiceImplBase {
-
-    private final EstoqueServiceGrpc.EstoqueServiceBlockingStub estoque;
-    private final PedidoRepository repository;
-
-    public PedidoServiceImpl(EstoqueServiceGrpc.EstoqueServiceBlockingStub estoque, PedidoRepository repository) {
-        this.estoque = estoque;
-        this.repository = repository;
-    }
+    private static final Logger log = LoggerFactory.getLogger(PedidoServiceImpl.class);
+    private final PedidoService service;
+    public PedidoServiceImpl(PedidoService service) { this.service = service; }
 
     @Override
-    public void criarPedido(CriarPedidoRequest request, StreamObserver<CriarPedidoResponse> responseObserver) {
-        ConsultarEstoqueRequest consulta = ConsultarEstoqueRequest.newBuilder().setItem(request.getItem()).build();
-        ConsultarEstoqueResponse respostaEstoque = estoque.consultarEstoque(consulta);
-        boolean quantidadeSuficiente = respostaEstoque.getQuantidadeDisponivel() >= request.getQuantidade();
-        Pedido pedido = repository.save(new Pedido(request.getItem(), request.getQuantidade(),
-                quantidadeSuficiente ? "ACEITO" : "REJEITADO"));
-
-        CriarPedidoResponse response = CriarPedidoResponse.newBuilder()
-                                                          .setPedidoId(pedido.getId().toString())
-                                                          .setStatus(pedido.getStatus())
-                                                          .setMensagem(quantidadeSuficiente ? "Pedido aceito." : "Estoque insuficiente.")
-                                                          .build();
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+    public void criarPedido(CriarPedidoRequest r, StreamObserver<aula.sd.ecommerce.grpc.Pedido> out) {
+        responder(out, () -> service.criar(r));
+    }
+    @Override
+    public void consultarPedido(ConsultarPedidoRequest r, StreamObserver<aula.sd.ecommerce.grpc.Pedido> out) {
+        responder(out, () -> service.consultar(r));
+    }
+    @Override
+    public void listarPedidos(ListarPedidosRequest r, StreamObserver<ListarPedidosResponse> out) {
+        responder(out, () -> service.listar(r.getUsuario()));
+    }
+    private <T> void responder(StreamObserver<T> out, Supplier<T> operacao) {
+        try {
+            // O proxy transacional confirma a gravação antes de enviarmos sucesso pela rede.
+            T resposta = operacao.get();
+            out.onNext(resposta);
+            out.onCompleted();
+        } catch (StatusRuntimeException e) {
+            out.onError(e);
+        } catch (Exception e) {
+            log.error("Falha nos pedidos", e);
+            out.onError(Status.INTERNAL.withDescription("Falha interna nos pedidos.").asRuntimeException());
+        }
     }
 }

@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package ecommerce;
+
+option java_multiple_files = true;
+option java_package = "aula.sd.ecommerce.grpc";
+option java_outer_classname = "ProdutoEstoqueProto";
+
+service EstoqueService {
+  rpc ListarProdutos(ListarProdutosRequest) returns (ListarProdutosResponse);
+  rpc ConsultarProduto(ConsultarProdutoRequest) returns (Produto);
+  rpc ReservarEstoque(ReservarEstoqueRequest) returns (ReservarEstoqueResponse);
+}
+
+message ListarProdutosRequest {
+}
+
+message ListarProdutosResponse {
+  repeated Produto produtos = 1;
+}
+
+message ConsultarProdutoRequest {
+  string produto_id = 1;
+}
+
+message Produto {
+  string id = 1;
+  string nome = 2;
+  string descricao = 3;
+  string preco = 4;
+  string moeda = 5;
+  int32 quantidade_disponivel = 6;
+}
+
+message ItemReservaRequest {
+  string produto_id = 1;
+  int32 quantidade = 2;
+}
+
+message ReservarEstoqueRequest {
+  repeated ItemReservaRequest itens = 1;
+}
+
+message ItemReservado {
+  string produto_id = 1;
+  string nome = 2;
+  int32 quantidade = 3;
+  string preco_unitario = 4;
+  string subtotal = 5;
+}
+
+message ReservarEstoqueResponse {
+  repeated ItemReservado itens = 1;
+  string valor_total = 2;
+  string moeda = 3;
+}
