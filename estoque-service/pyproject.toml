@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dynamic = ["dependencies"]
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = {file = ["requirements-runtime.txt"]}
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -15,10 +15,11 @@ from estoque.grpc_server import EstoqueGrpcService
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     host = os.getenv("GRPC_HOST", "127.0.0.1")
-    porta = int(os.getenv("GRPC_PORT", "9091"))
+    # Cloud Run fornece PORT; GRPC_PORT preserva os comandos das aulas anteriores.
+    porta = int(os.getenv("PORT", os.getenv("GRPC_PORT", "9091")))
     workers = int(os.getenv("GRPC_WORKERS", "4"))
     if not 1 <= porta <= 65535 or workers <= 0:
-        raise ValueError("GRPC_PORT deve estar entre 1 e 65535 e GRPC_WORKERS deve ser positivo.")
+        raise ValueError("PORT/GRPC_PORT deve estar entre 1 e 65535 e GRPC_WORKERS deve ser positivo.")
 
     encerramento = Event()
     signal.signal(signal.SIGINT, lambda *_: encerramento.set())

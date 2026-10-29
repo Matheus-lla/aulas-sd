@@ -48,5 +48,8 @@ __pycache__/
 *.pyc
 *.egg-info/
 .env
+.env.*
+!.env.example
+*.env
 estoque-service/src/estoque/generated/*_pb2.py
 estoque-service/src/estoque/generated/*_pb2_grpc.py

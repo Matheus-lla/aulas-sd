@@ -51,11 +51,13 @@ Execute os comandos a partir da raiz do repositório:
 sudo apt install python3.13-venv
 python3 -m venv estoque-service/.venv
 estoque-service/.venv/bin/python -m pip install -e ./estoque-service
+estoque-service/.venv/bin/python -m pip install -r estoque-service/requirements.txt
 estoque-service/gerar-proto.sh
 ```
 
-O Maven compila somente contratos, pedidos e gateway. As dependências Python vêm de
-`estoque-service/requirements.txt`, lido pelo `pyproject.toml`. Os arquivos Protobuf
+O Maven compila somente contratos, pedidos e gateway. As dependências de execução
+Python vêm de `estoque-service/requirements-runtime.txt`, lido pelo `pyproject.toml`;
+`requirements.txt` acrescenta a ferramenta de geração Protobuf. Os arquivos Protobuf
 Python gerados e o `venv` são ignorados pelo Git. `clean` evita classes geradas antigas
 ao alternar entre aulas. Nenhuma nova suíte de testes foi criada.
 
@@ -271,10 +273,11 @@ e [diagnóstico de conectividade Cloud SQL](https://docs.cloud.google.com/sql/do
 | `LOCAL_DB_URL` | Pedidos local | `jdbc:h2:file:./data/pedidos_demo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE` |
 | `H2_PG_PORT` | `scripts/h2.sh` | 5435; ao mudar, ajuste `DB_PORT` no Python |
 | `GRPC_HOST`, `GRPC_PORT`, `GRPC_WORKERS` | Python | `127.0.0.1`, 9091, 4 |
-| `GRPC_PORT` | Pedidos | 9090 |
+| `GRPC_PORT` | Pedidos | 9090; `PORT` tem prioridade |
 | `ESTOQUE_GRPC_TARGET` | Pedidos/gateway | `static://localhost:9091` |
 | `PEDIDO_GRPC_TARGET` | Gateway | `static://localhost:9090` |
-| `SERVER_PORT` | Gateway | 8080 |
+| `SERVER_PORT` | Gateway | Configuração nativa Spring; padrão 8080; não combinar com `PORT` |
+| `PORT` | Gateway, pedidos e Python | Opcional (Cloud Run); em pedidos/Python tem prioridade sobre `GRPC_PORT`; gateway deve deixar `SERVER_PORT` ausente |
 | `GRPC_DEADLINE` | Gateway | 5s; pedidos espera até 2s pelo estoque |
 | `APP_USERNAME`, `APP_PASSWORD` | Gateway | `admin` / `admin` |
 | `JWT_SECRET`, `JWT_EXPIRATION_SECONDS` | Gateway | Segredo didático e expiração de 3600s |
@@ -388,3 +391,11 @@ consultas, rollback, concorrência, reinício e interface no navegador. O perfil
 também foi exercitado em PostgreSQL isolado com TLS. Os comandos e resultados,
 incluindo o que não foi executado, estão em
 [docs/validacao-versao-final.md](docs/validacao-versao-final.md).
+
+## Docker e publicação das imagens
+
+O roteiro [docs/aula-docker.md](docs/aula-docker.md) usa esta versão do sistema:
+três imagens independentes, para gateway, pedidos e estoque Python. Os builds partem
+da raiz do repositório e não exigem JAR, ambiente Python ou contratos previamente
+gerados. O Cloud SQL permanece externo. A aula inclui execução com `docker run` e
+publicação no Artifact Registry; não realiza deploy no Cloud Run.

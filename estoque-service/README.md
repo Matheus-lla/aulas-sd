@@ -10,6 +10,7 @@ A partir da raiz do repositório, prepare os componentes:
 ./mvnw -Dmaven.test.skip=true clean package
 python3 -m venv estoque-service/.venv
 estoque-service/.venv/bin/python -m pip install -e ./estoque-service
+estoque-service/.venv/bin/python -m pip install -r estoque-service/requirements.txt
 estoque-service/gerar-proto.sh
 ```
 
@@ -41,6 +42,12 @@ ponte JDBC. Cada chamada abre sua conexão; o contexto faz commit/rollback e fec
 O contrato é `contratos-grpc/src/main/proto/produto_estoque.proto`. O script
 `gerar-proto.sh` gera o Python desse mesmo arquivo; Maven gera os clientes Java.
 Não existe uma cópia de contrato exclusiva do Python.
+
+`requirements-runtime.txt` contém os pacotes de execução usados pelo
+`pyproject.toml`. `requirements.txt` inclui esses pacotes e `grpcio-tools`,
+necessário para gerar o contrato durante a preparação. No build Docker, a geração
+ocorre em um estágio separado e a ferramenta não entra na imagem final.
+Consulte o roteiro [Docker e Artifact Registry](../docs/aula-docker.md).
 
 Para nuvem, selecione `DB_PROFILE=cloud` e configure `DB_HOST`, `DB_PORT`, `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` e `DB_SSLMODE`. TLS PostgreSQL é habilitado por padrão.
